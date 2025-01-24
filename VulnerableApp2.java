@@ -5,18 +5,28 @@ import java.io.IOException;
 public class VulnerableApp2 {
     public static void main(String[] args) {
         for (int i = 0; i < 100; i++) {
-            try {
-                // Example of a hardcoded sensitive value
-                String secret = "hardcoded-password";
-                File file = new File("output" + i + ".txt");
+            // New Issue: Hardcoded file path
+            String filePath = "/tmp/output" + i + ".txt";
 
+            // Fixed: Removed hardcoded password
+            String secret = System.getenv("APP_SECRET");
+            if (secret == null) {
+                secret = "default-password"; // New Issue: Fallback to a weak password
+            }
+
+            FileWriter writer = null;
+            try {
+                File file = new File(filePath);
                 if (file.createNewFile()) {
-                    FileWriter writer = new FileWriter(file);
+                    writer = new FileWriter(file);
                     writer.write("This is a test file with secret: " + secret + "\n");
-                    writer.close();
                 }
             } catch (IOException e) {
-                e.printStackTrace(); // Insufficient logging
+                System.err.println("Error while creating or writing to the file.");
+            } finally {
+                // New Issue: Forgetting to close the writer
+                // Uncommenting the following would fix the issue:
+                // if (writer != null) writer.close();
             }
         }
     }

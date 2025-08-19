@@ -63,10 +63,12 @@ public class VulnerableController {
         // Tag: CWE
         // Issue: Hardcoded password in the code.
         String dbPassword = "very-secret-password"; // CWE-798 (Use of Hard-coded Credentials)
-        return "Search results for: " + query; // (A AND B)
-                                              // Tag: CWE
-                                              // Tag: OWASP
-                                              // Issue: Cross-Site Scripting (XSS) vulnerability.
+        
+        // (A AND B)
+        // Tag: CWE
+        // Tag: OWASP
+        // Issue: Cross-Site Scripting (XSS) vulnerability.
+        return "Search results for: " + query;
     }
 
     @GetMapping("/profile")
@@ -74,9 +76,9 @@ public class VulnerableController {
 
         // (B only)
         // Tag: OWASP
-        // Issue: Missing input validation for user-provided data.
-        // This is a general OWASP issue (like A03:2021 - Injection) that may not
-        // have a specific, direct CWE mapping in all cases.
+        // Issue: Missing input validation for user-provided data. This is a general
+        // OWASP issue (like A03:2021 - Injection) that may not have a specific,
+        // direct CWE mapping in all cases.
         Pattern pattern = Pattern.compile("^[a-zA-Z0-9]+$"); // Incomplete validation example
         if (!pattern.matcher(username).matches()) {
             return "Invalid username format!";
@@ -108,20 +110,28 @@ public class VulnerableController {
         // security issue (tagged with WASP) and a Spring-specific issue.
         return "redirect:" + url; // Example of a Spring-related issue
     }
-}
-
-@Controller
-class AnotherVulnerableController {
     
-    @GetMapping("/session-issue")
-    public String brokenSessionManagement(HttpServletRequest request) {
-
-        // (A only)
+    @GetMapping("/only-wasp")
+    public String onlyWASP() {
+        // (D only)
         // Tag: WASP
-        // Issue: Insufficient Session Expiration.
-        // This is a general Web Application Security Project (WASP) concern,
-        // which can be a different classification system from CWE/OWASP.
-        request.getSession().setMaxInactiveInterval(-1); 
+        // Issue: Insufficient Session Expiration. This is a general Web
+        // Application Security Project (WASP) concern, which can be a different
+        // classification system from CWE/OWASP.
+        HttpServletRequest request = null; // Assuming injected from framework
+        request.getSession().setMaxInactiveInterval(-1);
         return "session-info";
+    }
+
+    @GetMapping("/insecure-http")
+    public String insecureHttp() {
+        // (B AND C)
+        // Tag: OWASP
+        // Tag: SPRING
+        // Issue: Use of HTTP for a sensitive endpoint, without HTTPS. This is an
+        // OWASP concern (A02:2021 - Cryptographic Failures) and a Spring issue
+        // as it relates to a lack of HTTPS configuration.
+        // A user's password could be sent to this endpoint.
+        return "login form";
     }
 }
